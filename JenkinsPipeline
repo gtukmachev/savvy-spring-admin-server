@@ -1,0 +1,83 @@
+pipeline {
+  agent any
+  environment {
+    LOGS_PATH = "app-logs.log"
+    PIDFILE_PATH = "/var/run/jenkins/${JOB_NAME}.pid"
+    HEALTHCHECK_URL = "http://localhost:9000/actuator/health"
+  }
+  stages {
+    stage('Cleanup') {
+      steps {
+        sh 'rm -rf *'
+      }
+    }
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'mvn package'
+      }
+    }
+    stage('Stop') {
+      steps {
+        sh "pkill -9 -F ${PIDFILE_PATH} || true"
+      }
+    }
+    stage('Run') {
+      steps {
+        sh "cd target && JENKINS_NODE_COOKIE=dontKillMe nohup java -jar spring-admin-server-1.0-SNAPSHOT.jar > ${WORKSPACE}/${LOGS_PATH} 2>&1 & echo \$! > ${PIDFILE_PATH}"
+      }
+    }
+    stage('Healthcheck') {
+      steps {
+        script {
+          timeout(time: 90, unit: 'SECONDS'){
+            waitUntil{
+              // Check java process presence
+              pgrepExitCode = sh returnStatus: true, script: "pgrep -F ${PIDFILE_PATH} > /dev/null"
+              // Check health endpoint status
+              healthExitCode = sh returnStatus: true, script: "curl --fail ${HEALTHCHECK_URL}"
+              if ( pgrepExitCode != 0 ) {
+                logFileExists = fileExists LOGS_PATH
+                if (logFileExists) {
+                  logFile = readFile LOGS_PATH
+                  echo logFile
+                } else {
+                  echo "No log file is present at the path '${LOGS_PATH}'"
+                }
+                error "The application has crashed"
+              } else {
+                echo "The application process is up"
+              }
+
+              if (healthExitCode == 0) {
+                echo "HTTP Healthcheck passed"
+                return true
+              } else {
+                echo "HTTP Healthcheck failed. Retrying"
+                return false
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  post {
+    regression {
+      emailext attachLog: true,
+               recipientProviders: [developers()],
+               subject: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has failed.",
+               body: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has failed.\n\nOpen ${env.BUILD_URL}/console for more details"
+    }
+    fixed {
+      emailext recipientProviders: [developers()],
+               subject: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has been fixed.",
+               body: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has been fixed.\n\nOpen ${env.BUILD_URL}/console for more details"
+    }
+  }
+}
+

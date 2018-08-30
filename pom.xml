@@ -5,11 +5,11 @@
 
 	<groupId>net.clearscale.savvy</groupId>
 	<artifactId>spring-admin-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>spring-admin-server</name>
-	<description>Demo project for Spring Boot</description>
+	<description>The tool for monitoring of all launched applicationsin runtime</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -22,7 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>1.8</java.version>
-		<spring-boot-admin.version>2.0.1</spring-boot-admin.version>
+		<spring-boot-admin.version>2.0.2</spring-boot-admin.version>
 	</properties>
 
 	<dependencies>
