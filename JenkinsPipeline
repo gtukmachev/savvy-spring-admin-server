@@ -72,11 +72,16 @@ pipeline {
                recipientProviders: [developers()],
                subject: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has failed.",
                body: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has failed.\n\nOpen ${env.BUILD_URL}/console for more details"
+      // Slack Channel and credentials must be configured globally in Jenkins
+      slackSend color: danger,
+                message: "[$JENKINS_ENV] The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has failed.\n\nOpen ${env.BUILD_URL}/console for more details"
     }
     fixed {
       emailext recipientProviders: [developers()],
                subject: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has been fixed.",
                body: "The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has been fixed.\n\nOpen ${env.BUILD_URL}/console for more details"
+      slackSend color: good,
+                message: "[$JENKINS_ENV] The build ${env.JOB_NAME} - ${env.BUILD_DISPLAY_NAME} has fixed.\n\nOpen ${env.BUILD_URL}/console for more details"
     }
   }
 }
