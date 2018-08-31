@@ -1,3 +1,6 @@
 server:
     port:
         9000
+
+spring.boot.admin:
+    ui.title: Savvy Backend Manager
