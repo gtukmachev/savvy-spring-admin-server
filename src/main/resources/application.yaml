@@ -1,6 +1,6 @@
 server:
-    port:
-        9000
+    port: 9000
 
 spring.boot.admin:
     ui.title: Savvy Backend Manager
+    context-path: '/sba'
