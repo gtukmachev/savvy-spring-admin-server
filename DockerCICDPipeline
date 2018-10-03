@@ -24,8 +24,11 @@ pipeline {
           // calculate GIT lastest commit short-hash
           gitCommitHash = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
           shortCommitHash = gitCommitHash.take(7)
+          timestamp = new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone('UTC'))
+          appVersion = sh(returnStdout: true, script: "mvn -q -Dexec.executable=\"echo\" -Dexec.args='\${project.version}' --non-recursive exec:exec").trim()
+          gitBranch = scm.branches[0].name
           // calculate a sample version tag
-          VERSION = shortCommitHash
+          VERSION = "${appVersion}-${gitBranch}-${shortCommitHash}-${timestamp}"
           // set the build display name
           currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
           IMAGE = "$REPOSITORY:$VERSION"
@@ -40,7 +43,7 @@ pipeline {
     stage('Docker build') {
       steps {
         script {
-          docker.build("$IMAGE")
+          docker.build("$IMAGE", "--build-arg IMAGE_VERSION=${VERSION} .")
         }
       }
     }
