@@ -2,7 +2,6 @@ pipeline {
   agent any
   environment {
     SERVICE = "sba"
-    REPOSITORY = "sm-ui-${SERVICE}"
     SERVICE_FULLNAME = "${JENKINS_ENV}-sm-ui-${SERVICE}"
     PARAMETERS_TEMP_FILE = "${WORKSPACE}/parameters_${BUILD_ID}.json"
     AWS_REGION = "us-east-1"
@@ -31,7 +30,7 @@ pipeline {
           VERSION = "${appVersion}-${gitBranch}-${shortCommitHash}-${timestamp}"
           // set the build display name
           currentBuild.displayName = "#${BUILD_ID}-${VERSION}"
-          IMAGE = "$REPOSITORY:$VERSION"
+          IMAGE = "${SERVICE_FULLNAME}:${VERSION}"
         }
       }
     }
@@ -52,7 +51,7 @@ pipeline {
         script {
           // get repository uri by name
           repoUri = sh(returnStdout: true,
-           script: """aws ecr describe-repositories --region ${AWS_REGION} --repository-names ${REPOSITORY} |
+           script: """aws ecr describe-repositories --region ${AWS_REGION} --repository-names ${SERVICE_FULLNAME} |
            jq -r '.repositories[0].repositoryUri'""").trim()
           repoFullUri = "https://${repoUri}"
           withAWS(region: AWS_REGION) {
