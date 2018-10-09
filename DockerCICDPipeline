@@ -64,6 +64,7 @@ pipeline {
             // push image with tag "latest"
             docker.image(IMAGE).push('latest')
           }
+          imageId = sh(returnStdout: true, script: "docker images -q $IMAGE").trim()
         }
       }
     }
@@ -91,7 +92,8 @@ pipeline {
   post {
     always {
       // make sure that the Docker image is removed
-      sh "docker rmi $IMAGE | true"
+      sh returnStatus: true,
+        script: "docker images --format \'{{.ID}} {{.Repository}}:{{.Tag}}\' | grep ${imageId} | awk \'{print \$2}\' |xargs docker rmi"
       // Delete temporary file
       sh "rm ${PARAMETERS_TEMP_FILE} |true"
     }
