@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>com.savvymoney.v2</groupId>
 			<artifactId>aws-parameter-store-spring-boot-starter</artifactId>
-			<version>0.1.3.sb202</version>
+			<version>0.1.4.sb202</version>
 		</dependency>
 
 
