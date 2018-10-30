@@ -1,0 +1,54 @@
+@Library('sm-ui') _
+
+pipeline {
+  agent any
+  environment {
+    SERVICE = "sba"
+    SERVICE_FULLNAME = "${JENKINS_ENV}-sm-ui-${SERVICE}"
+    PARAMETERS_TEMP_FILE = "${WORKSPACE}/parameters_${BUILD_ID}.json"
+    AWS_REGION = "us-east-1"
+    REPO_URL = """${sh(returnStdout: true, script:"aws ecr describe-repositories \
+    --region ${AWS_REGION} --repository-names ${SERVICE_FULLNAME} \
+    | jq -r '.repositories[0].repositoryUri'").trim()}"""
+  }
+  options {
+    disableConcurrentBuilds()
+    ansiColor("xterm")
+    timestamps()
+  }
+  stages {
+    stage('Check CloudFormation status'){
+      steps {
+        script {
+          checkCfStatusOnStart()
+        }
+      }
+    }
+    stage('Check image tag presence in ECR'){
+      steps {
+        script {
+          checkEcrPresence(params.IMAGE_TAG)
+        }
+      }
+    }
+    stage('Update ECS service'){
+      steps {
+        script {
+          updateCf(REPO_URL, params.IMAGE_TAG)
+        }
+      }
+    }
+  }
+  post {
+     always {
+       // Delete temporary file
+       sh "rm ${PARAMETERS_TEMP_FILE} |true"
+     }
+     regression {
+        sendNotifications(currentBuild.currentResult)
+     }
+     fixed {
+        sendNotifications(currentBuild.currentResult)
+     }
+  }
+}
