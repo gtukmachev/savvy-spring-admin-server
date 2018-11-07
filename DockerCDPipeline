@@ -43,11 +43,11 @@ pipeline {
        // Delete temporary file
        sh "rm ${PARAMETERS_TEMP_FILE} |true"
      }
-//     regression {
-//        sendNotifications(currentBuild.currentResult)
-//     }
-//     fixed {
-//        sendNotifications(currentBuild.currentResult)
-//     }
+     regression {
+        sendNotifications(currentBuild.currentResult)
+     }
+     fixed {
+        sendNotifications(currentBuild.currentResult)
+     }
   }
 }
