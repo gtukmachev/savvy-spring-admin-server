@@ -4,12 +4,11 @@ pipeline {
   agent any
   environment {
     SERVICE = "sba"
+    ECR_REPO_NAME = "${params.ECR_ENV}-sm-ui-${SERVICE}"
     SERVICE_FULLNAME = "${JENKINS_ENV}-sm-ui-${SERVICE}"
     PARAMETERS_TEMP_FILE = "${WORKSPACE}/parameters_${BUILD_ID}.json"
     AWS_REGION = "us-east-1"
-    REPO_URL = """${sh(returnStdout: true, script:"aws ecr describe-repositories \
-    --region ${AWS_REGION} --repository-names ${SERVICE_FULLNAME} \
-    | jq -r '.repositories[0].repositoryUri'").trim()}"""
+    REPO_URL = "${params.ECR_REGISTRY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
   }
   options {
     disableConcurrentBuilds()
@@ -27,7 +26,7 @@ pipeline {
     stage('Check image tag presence in ECR'){
       steps {
         script {
-          checkEcrPresence(params.IMAGE_TAG)
+          checkEcrPresence(params.IMAGE_TAG, params.ECR_REGISTRY_ID, params.ECR_REPO_NAME)
         }
       }
     }
@@ -44,11 +43,11 @@ pipeline {
        // Delete temporary file
        sh "rm ${PARAMETERS_TEMP_FILE} |true"
      }
-     regression {
-        sendNotifications(currentBuild.currentResult)
-     }
-     fixed {
-        sendNotifications(currentBuild.currentResult)
-     }
+//     regression {
+//        sendNotifications(currentBuild.currentResult)
+//     }
+//     fixed {
+//        sendNotifications(currentBuild.currentResult)
+//     }
   }
 }
