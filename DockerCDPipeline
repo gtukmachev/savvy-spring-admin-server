@@ -37,6 +37,13 @@ pipeline {
         }
       }
     }
+    stage('Add deployed tag to image'){
+      steps {
+        script {
+          ecrAddDeployedTag(params.IMAGE_TAG, params.ECR_REGISTRY_ID, ECR_REPO_NAME)
+        }
+      }
+    }
   }
   post {
      always {
