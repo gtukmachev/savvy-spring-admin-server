@@ -6,12 +6,12 @@
     <parent>
         <groupId>com.savvymoney.v2</groupId>
         <artifactId>savvymoney-v2-parent</artifactId>
-        <version>0.5.2.sb202-SNAPSHOT</version>
+        <version>0.5.2.sb202</version>
     </parent>
 
     <groupId>com.savvymoney.v2.sba</groupId>
     <artifactId>spring-admin-server</artifactId>
-    <version>0.5.2.sb202-SNAPSHOT</version>
+    <version>0.5.2.sb202</version>
 
     <packaging>jar</packaging>
 
