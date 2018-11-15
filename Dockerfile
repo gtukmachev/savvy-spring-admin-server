@@ -5,7 +5,7 @@ ARG IMAGE_VERSION
 
 ENV IMAGE_VERSION=${IMAGE_VERSION}
 
-ADD target/spring-admin-server-0.5.2.sb202.jar /spring-admin-server.jar
+ADD target/spring-admin-server-0.5.2.jar /spring-admin-server.jar
 
 CMD java ${JAVA_OPTS} -jar /spring-admin-server.jar
 

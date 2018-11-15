@@ -11,7 +11,7 @@
 
     <groupId>com.savvymoney.v2.sba</groupId>
     <artifactId>spring-admin-server</artifactId>
-    <version>0.5.2.sb202</version>
+    <version>0.5.2</version>
 
     <packaging>jar</packaging>
 
