@@ -4,57 +4,64 @@ pipeline {
   agent any
   environment {
     SERVICE = "sba"
-    ECR_REPO_NAME = "${params.ECR_ENV}-sm-ui-${SERVICE}"
     SERVICE_FULLNAME = "${JENKINS_ENV}-sm-ui-${SERVICE}"
     PARAMETERS_TEMP_FILE = "${WORKSPACE}/parameters_${BUILD_ID}.json"
     AWS_REGION = "us-east-1"
-    REPO_URL = "${params.ECR_REGISTRY_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
   }
   options {
-    disableConcurrentBuilds()
     ansiColor("xterm")
     timestamps()
   }
   stages {
-    stage('Check CloudFormation status'){
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+    stage('Build preparations') {
       steps {
         script {
-          checkCfStatusOnStart()
+          (IMAGE, VERSION) = calcVersion('maven')
         }
       }
     }
-    stage('Check image tag presence in ECR'){
+    stage('Maven build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+    stage('Docker build') {
       steps {
         script {
-          checkEcrPresence(params.IMAGE_TAG, params.ECR_REGISTRY_ID, ECR_REPO_NAME)
+          docker.build("$IMAGE", "--build-arg IMAGE_VERSION=${VERSION} .")
         }
       }
     }
-    stage('Update ECS service'){
+    stage('Docker push') {
       steps {
         script {
-          updateCf(REPO_URL, params.IMAGE_TAG)
+          (IMAGE_ID, REPO_URI) = ecrPush(IMAGE)
         }
       }
     }
-    stage('Add deployed tag to image'){
+    stage('Trigger CD'){
+      when {
+        expression { return params.TRIGGER_CD }
+      }
       steps {
-        script {
-          ecrAddDeployedTag(params.IMAGE_TAG, params.ECR_REGISTRY_ID, ECR_REPO_NAME)
-        }
+        build job: "${SERVICE}-cd", parameters: [string(name: 'IMAGE_TAG', value: VERSION)], wait: false
       }
     }
   }
   post {
      always {
-       // Delete temporary file
-       sh "rm ${PARAMETERS_TEMP_FILE} |true"
+       ciCleanup(IMAGE_ID)
      }
-     regression {
-        sendNotifications(currentBuild.currentResult)
-     }
-     fixed {
-        sendNotifications(currentBuild.currentResult)
-     }
+    regression {
+       sendNotifications(currentBuild.currentResult)
+    }
+    fixed {
+       sendNotifications(currentBuild.currentResult)
+    }
   }
 }
