@@ -30,7 +30,7 @@ pipeline {
       steps {
         sh "cd target && echo 'java -jar spring-admin-server-0.5.2.jar & echo \$! > ${PIDFILE_PATH}' > run.sh"
         sh "cd target && chmod +x run.sh"
-        sh "JENKINS_NODE_COOKIE=dontKillMe nohup ./run.sh > ${WORKSPACE}/${LOGS_PATH} 2>&1 &"
+        sh "cd target && JENKINS_NODE_COOKIE=dontKillMe nohup ./run.sh > ${WORKSPACE}/${LOGS_PATH} 2>&1 &"
       }
     }
     stage('Healthcheck') {
