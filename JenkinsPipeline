@@ -28,7 +28,9 @@ pipeline {
     }
     stage('Run') {
       steps {
-        sh "cd target && JENKINS_NODE_COOKIE=dontKillMe nohup java -jar spring-admin-server-0.5.2.jar > ${WORKSPACE}/${LOGS_PATH} 2>&1 & echo \$! > ${PIDFILE_PATH}"
+        sh "cd target && echo 'java -jar spring-admin-server-0.5.2.jar & echo \$! > ${PIDFILE_PATH}' > run.sh"
+        sh "cd target && chmod +x run.sh"
+        sh "JENKINS_NODE_COOKIE=dontKillMe nohup ./run.sh > ${WORKSPACE}/${LOGS_PATH} 2>&1 &"
       }
     }
     stage('Healthcheck') {
