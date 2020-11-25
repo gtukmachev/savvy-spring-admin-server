@@ -1,6 +1,28 @@
 server:
     port: 9000
+    servlet.context-path: '/sba'
 
 spring.boot.admin:
-    ui.title: Savvy Backend Manager
+    ui.title: "SBA (self)"
     context-path: '/sba'
+    client:
+        url: 'http://localhost:9000/sba'
+        auto-deregistration: true
+        instance:
+            service-base-url: "http://localhost:${server.port}${server.servlet.context-path}"
+            management-base-url: "http://localhost:${server.port}"
+            prefer-ip: true
+            metadata:
+                user.name: 'admin-server'
+                # the next field should be seted up with -Dspring.boot.admin.client.instance.metadata.user.password
+                #   parameter AS A RANDOM GENERATED STRING
+                #             EACH LAUNCHING OF THE APPLICATION should use a new generated random password!
+                user.password: '***'
+                jenkins.build.number: '${jenkins.build.number:"undefined"}'
+                image.version: '${image.version:"undefined"}'
+
+management:
+    endpoints.web:
+        base-path: "/sba/actuator"
+        exposure.include: '*'
+
