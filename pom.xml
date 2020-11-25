@@ -36,32 +36,15 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
-        </dependency>
+        <dependency> <artifactId>spring-boot-starter-webflux</artifactId>      <groupId>org.springframework.boot</groupId> </dependency>
+        <dependency> <artifactId>spring-boot-starter-actuator</artifactId>     <groupId>org.springframework.boot</groupId> </dependency>
+        <dependency> <artifactId>spring-boot-admin-starter-server</artifactId> <groupId>de.codecentric</groupId> </dependency>
+        <dependency> <artifactId>spring-boot-admin-starter-client</artifactId> <groupId>de.codecentric</groupId> </dependency>
 
-        <dependency>
-            <groupId>de.codecentric</groupId>
-            <artifactId>spring-boot-admin-starter-server</artifactId>
-        </dependency>
+        <dependency> <artifactId>aws-parameter-store-spring-boot-starter</artifactId> <groupId>com.savvymoney.v2.parameterstore</groupId> </dependency>
 
-        <dependency>
-            <artifactId>aws-parameter-store-spring-boot-starter</artifactId>
-            <groupId>com.savvymoney.v2.parameterstore</groupId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-test</artifactId>
-            <scope>test</scope>
-        </dependency>
+        <dependency> <artifactId>spring-boot-starter-test</artifactId> <scope>test</scope> <groupId>org.springframework.boot</groupId> </dependency>
+        <dependency> <artifactId>reactor-test</artifactId>             <scope>test</scope> <groupId>io.projectreactor</groupId> </dependency>
 
     </dependencies>
 
